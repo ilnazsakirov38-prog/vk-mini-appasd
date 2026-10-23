@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Движение Первых: Роли и направления</title>
+  <!-- VK Bridge -->
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/vk-bridge.js"></script>
+  <style>
+    :root {
+      --dp-blue: #0077FF;
+      --dp-dark: #0F172A;
+      --dp-accent: #FFD700;
+      --dp-text: #FFFFFF;
+      --dp-secondary: #CCCCCC;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--dp-dark);
+      color: var(--dp-text);
+      font-family: -apple-system, BlinkMacSystemFont, Roboto, Segoe UI, Arial, sans-serif;
+      padding: 16px;
+      min-height: 100vh;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1, h2 { margin-bottom: 12px; }
+    h1 { font-size: 24px; text-align: center; }
+    h2 { font-size: 18px; border-bottom: 1px solid var(--dp-secondary); padding-bottom: 8px; }
+    p { color: var(--dp-secondary); line-height: 1.5; margin-bottom: 16px; }
+
+    /* Логотип */
+    .logo-wrapper { text-align: center; margin-bottom: 24px; }
+    .logo-bg {
+      width: 120px; height: 120px; background: var(--dp-blue);
+      border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+      margin: 0 auto;
+    }
+
+    /* Формы */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input, select {
+      width: 100%; padding: 12px; border: 1px solid #333;
+      border-radius: 8px; background: #1A2538; color: white; font-size: 14px;
+    }
+    select:focus, input:focus { outline: none; border-color: var(--dp-blue); }
+
+    /* Карточки ролей */
+    .roles-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;
+    }
+    @media (max-width: 480px) { .roles-grid { grid-template-columns: 1fr; } }
+    .role-card {
+      background: #1A2538; padding: 16px; border-radius: 12px;
+      cursor: pointer; transition: transform 0.15s, background 0.2s;
+      border: 1px solid transparent; text-align: center;
+    }
+    .role-card:hover { transform: translateY(-2px); background: #222e44; }
+    .role-card.selected {
+      border-color: var(--dp-accent);
+      background: rgba(255, 215, 0, 0.1);
+    }
+    .role-title { font-weight: bold; margin-bottom: 4px; }
+    .role-desc { font-size: 13px; color: var(--dp-secondary); }
+
+    /* Блок «Хочу помогать» */
+    .help-block {
+      margin-top: 24px; padding: 16px; background: #111a2a;
+      border-left: 4px solid var(--dp-accent);
+    }
+
+    /* Кнопки */
+    button {
+      width: 100%; padding: 14px; background: var(--dp-blue); color: white;
+      border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-top: 16px;
+    }
+    button:hover { background: #005dbb; }
+
+    .status-msg {
+      margin-top: 12px; padding: 8px; background: #1a2538;
+      border-radius: 6px; font-size: 13px; display: none;
+    }
+    .success { color: #4caf50; display: block; }
+    .error { color: #f44336; display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-wrapper">
+      <div class="logo-bg"><span style="color:white;font-weight:bold;">ЛОГО</span></div>
+    </div>
+
+    <h1>Выбери направление и роль</h1>
+
+    <!-- Шаг 1: Опрос -->
+    <form id="survey-form">
+      <h2>Расскажи о себе</h2>
+      <p>Это поможет подобрать подходящие роли в проекте.</p>
+
+      <div class="form-group">
+        <label>Сфера деятельности</label>
+        <select id="field-area" required>
+          <option value="">Выберите вариант</option>
+          <option value="образование">Образование и учёба</option>
+          <option value="медиа">Медиа и коммуникации</option>
+          <option value="творчество">Творчество и культура</option>
+          <option value="управление">Управление и организация</option>
+          <option value="волонтёрство">Волонтёрство и социальная помощь</option>
+          <option value="спорт">Спорт и активный образ жизни</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Желаемое направление участия</label>
+        <select id="field-direction" required>
+          <option value="">Выберите направление</option>
+          <option value="медиа">Медиа</option>
+          <option value="волонтерство">Волонтёрство</option>
+          <option value="управление">Управление</option>
+          <option value="культура">Творчество и культура</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Учебное учреждение</label>
+        <input type="text" id="field-school" placeholder="Например: Школа №8" required />
+      </div>
+
+      <div class="form-group">
+        <label>Город</label>
+        <input type="text" id="field-city" placeholder="Город" required />
+      </div>
+
+      <button type="submit">Продолжить: рекомендуемые роли</button>
+    </form>
+
+    <!-- Шаг 2: Роли (скрыт по умолчанию) -->
+    <div id="roles-section" style="display:none;">
+      <h2>Рекомендуемые роли</h2>
+      <p>На основе твоих ответов мы подобрали направления, где ты сможешь проявить сильные стороны.</p>
+
+      <div class="roles-grid" id="roles-grid">
+        <!-- Карточки генерируются JS -->
+      </div>
+
+      <div class="help-block">
+        <h3>Хочу помогать</h3>
+        <p>Выбери организаторскую роль, если хочешь взять больше ответственности.</p>
+        <div class="roles-grid" id="org-roles-grid">
+          <!-- Карточки организаторских ролей генерируются JS -->
+        </div>
+      </div>
+
+      <form id="contact-form">
+        <h2>Контакты для связи</h2>
+        <div class="form-group">
+          <label>Имя и фамилия</label>
+          <input type="text" id="field-name" placeholder="Иван Иванов" required />
+        </div>
+        <div class="form-group">
+          <label>Телефон или VK ID</label>
+          <input type="text" id="field-contact" placeholder="+7 (999) 000-00-00 или vk.com/id..." required />
+        </div>
+        <button type="submit">Отправить заявку</button>
+      </form>
+
+      <div id="status-msg" class="status-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация VK Bridge
+    vkBridge.send('VKWebAppInit');
+
+    const roles = [
+      { id: 'media', title: 'Участник форума (медиа)', desc: 'Освещение событий, репортажи, фото, видео, тексты. Помогаешь рассказывать о проекте.' },
+      { id: 'volunteer', title: 'Участник форума (волонтёрство)', desc: 'Помощь на площадке, навигация, координация гостей, поддержка участников.' },
+      { id: 'manager', title: 'Участник форума (управление)', desc: 'Организация процессов, работа с задачами, контроль сроков, взаимодействие с партнёрами.' },
+      { id: 'culture', title: 'Участник форума (творчество и культура)', desc: 'Оформление, выступления, перформансы, арт-объекты, креативные идеи.' }
+    ];
+
+    const orgRoles = [
+      { id: 'ambassador', title: 'Амбассадор', desc: 'Представляешь проект в своей школе/вузе, рассказываешь о нём, привлекаешь новых участников.' },
+      { id: 'curator', title: 'Куратор', desc: 'Ведёшь группу участников, помогаешь им сориентироваться, следишь за прогрессом, поддерживаешь мотивацию.' },
+      { id: 'org-volunteer', title: 'Волонтёр (организатор)', desc: 'Помогаешь команде организаторов: задачи на площадке, логистика, координация, чек-листы.' },
+      { id: 'smm', title: 'СММщик', desc: 'Публикуешь посты, сторис, делаешь контент-план, работаешь с аудиторией в соцсетях.' }
+    ];
+
+    let selectedRoleIds = [];
+
+    function renderRoles(containerId, items) {
+      const container = document.getElementById(containerId);
+      if (!container) {
+        console.error('[renderRoles] Не найден элемент с id="' + containerId + '"');
+        return;
+      }
+      container.innerHTML = '';
+      items.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'role-card';
+        card.dataset.id = r.id;
+        card.innerHTML = `
+          <div class="role-title">${r.title}</div>
+          <div class="role-desc">${r.desc}</div>
+        `;
+        card.onclick = () => toggleRole(card, r.id);
+        container.appendChild(card);
+      });
+    }
+
+    function toggleRole(card, id) {
+      card.classList.toggle('selected');
+      const index = selectedRoleIds.indexOf(id);
+      if (index > -1) {
+        selectedRoleIds.splice(index, 1);
+      } else {
+        selectedRoleIds.push(id);
+      }
+      console.log('Выбранные роли:', selectedRoleIds);
+    }
+
+    function showStep(stepName) {
+      // Скрываем все секции
+      document.getElementById('survey-form').style.display = 'none';
+      document.getElementById('roles-section').style.display = 'none';
+
+      // Показываем нужную
+      if (stepName === 'survey') {
+        document.getElementById('survey-form').style.display = 'block';
+        window.scrollTo(0, 0);
+      } else if (stepName === 'roles') {
+        document.getElementById('roles-section').style.display = 'block';
+        window.scrollTo(0, 0);
+        // Рендерим карточки только при переходе к ролям
+        renderRoles('roles-grid', roles);
+        renderRoles('org-roles-grid', orgRoles);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('[VK Mini App] DOM загружен');
+
+      const surveyForm = document.getElementById('survey-form');
+      if (surveyForm) {
+        surveyForm.addEventListener('submit', e => {
+          e.preventDefault();
+          console.log('[submit] Переход к шагу roles');
+          showStep('roles');
+        });
+      } else {
+        console.error('[submit] Не найдена форма #survey-form');
+      }
+
+      const contactForm = document.getElementById('contact-form');
+      if (contactForm) {
+        contactForm.addEventListener('submit', async e => {
+          e.preventDefault();
+
+          const area = encodeURIComponent(document.getElementById('field-area').value);
+          const direction = encodeURIComponent(document.getElementById('field-direction').value);
+          const school = encodeURIComponent(document.getElementById('field-school').value);
+          const city = encodeURIComponent(document.getElementById('field-city').value);
+          const name = encodeURIComponent(document.getElementById('field-name').value);
+          const contact = encodeURIComponent(document.getElementById('field-contact').value);
+          const rolesStr = selectedRoleIds.join(', ');
+          const rolesEnc = encodeURIComponent(rolesStr);
+
+          // ---------------------------------------------------------
+          // ВАЖНО: ВСТАВЬ СЮДА ССЫЛКУ НА СВОЮ ЯНДЕКС ФОРМУ (до знака ?)
+          // Пример: https://forms.yandex.ru/u/1234567890abcdef/
+          const baseUrl = 'https://forms.yandex.ru/u/ВСТАВЬ_СЮДА_ССЫЛКУ_ДО_ЗНАКА_?/';
+          // ---------------------------------------------------------
+
+          // Ключи вопросов в Яндекс Форме (примерные, нужно подставить свои)
+          // Чтобы узнать свои ключи: заполни форму вручную, отправь, посмотри URL — там будут question_X
+          const qKeys = {
+            area: 'question_3',
+            direction: 'question_4',
+            school: 'question_5',
+            city: 'question_6',
+            name: 'question_7',
+            contact: 'question_8',
+            roles: 'question_9'
+          };
+
+          const url = `${baseUrl}?${qKeys.area}=${area}&${qKeys.direction}=${direction}&${qKeys.school}=${school}&${qKeys.city}=${city}&${qKeys.name}=${name}&${qKeys.contact}=${contact}&${qKeys.roles}=${rolesEnc}`;
+
+          console.log('Переход на форму:', url);
+
+          // Перенаправляем пользователя на Яндекс Форму с предзаполненными данными
+          window.location.href = url;
+        });
+      } else {
+        console.error('[submit] Не найдена форма #contact-form');
+      }
+    });
+
+    // Сначала показываем опрос
+    showStep('survey');
+  </script>
+</body>
+</html>
